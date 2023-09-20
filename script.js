@@ -75,6 +75,7 @@ const gameController = (() =>
     }
 
     const PlayRound = () => {
+        message.textContent = "Player X's turn";
         cells.forEach((cell) => {
             cell.addEventListener('click', (e) => {
                 let currentPlayer = GetCurrentPlayer().GetMark();
@@ -107,7 +108,6 @@ const gameController = (() =>
             });
         });
     };
-    
     
     restart.addEventListener('click', () => {
         board.Reset();
