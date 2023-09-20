@@ -29,11 +29,8 @@ const board = (() =>
         }
     }
 
-    const Win = () => 
-    {
-        let gameOver = false;
-        let winConditions = 
-        [
+    const Win = () => {
+        const winConditions = [
             [0,1,2],
             [3,4,5],
             [6,7,8],
@@ -42,65 +39,89 @@ const board = (() =>
             [2,5,8],
             [0,4,8],
             [2,4,6]
-        ]
-        
-        for(const condition of winConditions)
-        {
+        ];
+    
+        for(const [i, condition] of winConditions.entries()) {
             const [a, b, c] = condition;
+    
             if(gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c])
-                return gameBoard[a];
-
-            if(gameBoard.every(cell => cell != ""))
-                return "It's a tie !";
-
-            return null;
+                return { winner: gameBoard[a], combination: condition, combinationIndex: i };
+    
+            if(gameBoard.every(cell => cell !== ""))
+                return { winner: 'tie' };
         }
+    
+        return null;
     }
-
+    
     return {GetBoard, Reset, SetMark, Win};
-})();
-
-// Management of the display
-const displayController = (() => 
-{
-    const cells = document.querySelectorAll('.cell');
-    const message = document.querySelector('.message');
-    const boardArea = document.querySelector('main');
-    boardArea.appendChild(message);
-
-    const displayMessage = () => {
-        
-    }
-
-    cells.forEach((cell) => 
-    {
-        cell.addEventListener('click', (e) => 
-        {
-            let currentPlayerMark = gameController.GetCurrentPlayer().GetMark();
-            if(e.target.textContent === "" && board.Win() === null )
-            {
-                e.target.textContent = currentPlayerMark ;
-            }
-
-            board.SetMark(e.target.dataset.index, currentPlayerMark);  
-        })
-    })
 })();
 
 // Management of the game
 const gameController = (() => 
 {
+    const cells = document.querySelectorAll('.cell');
+    const message = document.querySelector('.message');
+    const restart = document.getElementById('restart');
     const firstPlayer = player("Player 1", "X");
     const secondPlayer = player("Player 2", "O");
-    let currentPlayer;
+    
     let round = 1;
 
     const GetCurrentPlayer = () => 
     {
         currentPlayer = (round % 2 === 1)? firstPlayer : secondPlayer;
-        round++;
         return currentPlayer;
     }
 
-    return {GetCurrentPlayer};
+    const PlayRound = () => {
+        cells.forEach((cell) => {
+            cell.addEventListener('click', (e) => {
+                let currentPlayer = GetCurrentPlayer().GetMark();
+
+    
+                if (e.target.textContent === "" && board.Win() === null) {
+                    e.target.textContent = currentPlayer;
+                    board.SetMark(e.target.dataset.index, currentPlayer);
+    
+                    const winResult = board.Win(); 
+    
+                    if (winResult) {
+                        if (winResult.winner !== 'tie') {
+                            const combinationCells = winResult.combination.map(index => cells[index]);
+                            combinationCells.forEach(cell => cell.classList.add('winning-cell'));
+                            message.textContent = `Player ${currentPlayer} has won!`;
+                        }
+    
+                         if (winResult.winner === 'tie') {
+                            message.textContent = "It's a tie !";
+                        }
+    
+                        cells.forEach(cell => cell.removeEventListener('click', handleClick));
+                    } else {
+                        round++;
+                        currentPlayer = GetCurrentPlayer().GetMark();
+                        message.textContent = `Player ${currentPlayer}'s turn`;
+                    }
+                }
+            });
+        });
+    };
+    
+    
+    restart.addEventListener('click', () => {
+        board.Reset();
+        cells.forEach(cell => {
+            cell.textContent = "";
+            cell.classList.remove('winning-cell');
+        });
+        currentPlayer = firstPlayer;
+        message.textContent = `Player X's turn`;
+        round = 1;
+    });
+
+
+    return {PlayRound};
 })();
+
+gameController.PlayRound();

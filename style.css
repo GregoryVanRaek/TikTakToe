@@ -7,6 +7,7 @@ body{
 
 h1{
     margin:4rem;
+    font-size: 3rem;;
 }
 
 main{
@@ -19,6 +20,8 @@ main{
 .board{
     display:grid;
     grid-template: 100px 100px 100px / 100px 100px 100px;
+    gap:5px;
+    margin:2rem 0;
 }
 
 .cell{
@@ -30,4 +33,34 @@ main{
     border:1px solid #EEE0C9;
     border-collapse: collapse;
     font-size: 3rem;
+    border-radius: 6px;
+    transition: background-color 0.1s; 
+}
+
+.cell:active {
+    background-color: #ccc;
+}
+
+button{
+    background-color: #EEE0C9;
+    color:#96B6C5;
+    border:none;
+    border-radius: 6px;
+    width:auto;
+    padding:0.5rem 1rem;
+    font-size:1.2rem;
+}
+
+button:hover{
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.winning-cell{
+    background-color:#EEE0C9;
+    color:#96B6C5;
+}
+
+.message{
+    font-size: 1.5rem;
 }
